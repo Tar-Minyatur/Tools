@@ -1,0 +1,15 @@
+div {
+    text-align: center;
+}
+div#letterView {
+    width: 100%;
+    font-size: 30em;
+    vertical-align: middle;
+}
+div#letterInfo {
+    color: #c0c0c0;
+    font-size: 5em;
+}
+button {
+    font-size: 5em;
+}
