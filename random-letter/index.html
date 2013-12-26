@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Random Letter Generator</title>
+		<style type="text/css">
+		div {
+			text-align: center;
+		}
+		div#letterView {
+			width: 100%;
+			font-size: 30em;
+			vertical-align: middle;
+		}
+		div#letterInfo {
+			color: #c0c0c0;
+			font-size: 5em;
+		}
+		button {
+			font-size: 5em;
+		}
+		</style>
+	</head>
+	<body>
+		<div id="letterView">Bereit?</div>
+		<div id="letterInfo"></div>
+		<div>
+			<button id="nextLetter" onclick="showNextLetter()">N&auml;chster</button>
+		</div>
+		<script type="text/javascript">
+		Array.prototype.shuffle = function() {
+			var i = this.length, j, temp;
+			if ( i == 0 ) return this;
+			while ( --i ) {
+				j = Math.floor( Math.random() * ( i + 1 ) );
+				temp = this[i];
+				this[i] = this[j];
+				this[j] = temp;
+			}
+			return this;
+		}
+
+		var letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Z'];
+
+		var randomLetters = letters.shuffle();
+
+		var currentIndex = -1;
+
+		var targetElement = document.getElementById('letterView');
+		var infoElement = document.getElementById('letterInfo');
+
+		function showNextLetter () {
+			currentIndex++;
+			if (currentIndex >= randomLetters.length) {
+				targetElement.textContent = 'Ende';
+				return;
+			}
+			var newLetter = randomLetters[currentIndex];
+			targetElement.textContent = newLetter;
+			letterInfo.textContent = (currentIndex + 1) + ' von ' + randomLetters.length;
+		}
+
+		window.onkeyup = showNextLetter;
+		</script>
+	</body>
+</html>

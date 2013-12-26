@@ -1,0 +1,358 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Points Table</title>
+		<style type="text/css">
+			body {
+				font-family: Verdana, Arial, sans-serif;
+				margin: 0;
+				padding: 3em 5em;
+			}
+
+			header {
+				border-bottom: 1px #c0c0c0 solid;
+				margin: 0 0 1em 0;
+				padding: 0;
+			}
+
+            section#ranking {
+                position: absolute;
+                top: 3.5em;
+                right: 5em;
+                padding: 1.5em;
+                background: #fff;
+                border: 1px #c0c0c0 solid;
+            }
+
+            section#ranking h2 {
+                margin-top: 0;
+                padding-top: 0;
+            }
+
+			table {
+				border: 1px #c0c0c0 solid;
+				border-collapse: collapse;
+			}
+
+			table tr td {
+				border: 1px #c0c0c0 solid;
+				padding: 0.2em;
+				text-align: right;
+			}
+
+            table tr th, #step4 table tr > :first-child {
+				background: #c0c0c0;
+				border: 1px #c0c0c0 solid;
+				color: #fff;
+				padding: 0.4em;
+			}
+
+			table tr#player_names th {
+				width: 100px;
+			}
+
+            table tr#player_names > th:first-child {
+				width: auto;
+			}
+
+			table tr#total_points th {
+				background: #fff;
+				color: #58d;
+			}
+
+            table#points_table tr td input {
+                border: none;
+                width: 90%;
+                height: 100%;
+                background: #f98;
+                text-align: center;
+            }
+
+			table tr#total_points th.leader {
+				background: #bbffbb;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script type="text/javascript">
+			var currentPlayerIndex = 0;
+			var roundNumber = 0;
+			var playerNames = [];
+			var playerPoints = [];
+			var currentTableRow = null;
+
+			var pt_init = function () {
+				jQuery('section').hide();
+				jQuery('#step1').show();
+				jQuery('#start_button').on('click', pt_setPlayerCount);
+				jQuery('#save_names').on('click', pt_setPlayerNames);
+				jQuery('#enter_points').on('click', pt_enterPlayerPoints);
+				jQuery('#no_points').on('click', pt_enterPlayerNoPoints);
+				jQuery('#points_form').on('submit', function (event) {
+					event.preventDefault();
+					pt_enterPlayerPoints();
+				});
+				jQuery('#number_of_players').focus().on('keypress', function (event) {
+					if (event.keyCode == 13) {
+						pt_setPlayerCount();
+					}
+                });
+                jQuery(document).on('unload', function (event) {
+                    return "You will lose all data. Proceed anyway?";
+                });
+            };
+
+			var pt_setPlayerCount = function (event) {
+				jQuery('#step1').hide();
+				var numberOfPlayers = jQuery('#number_of_players').val();
+				currentPlayerIndex = numberOfPlayers;
+				for (var i = 1; i <= numberOfPlayers; ++i) {
+					var newRow = document.createElement('tr');
+					var newTd = document.createElement('td');
+					newTd.textContent = i;
+					jQuery(newRow).append(newTd);
+					newTd = document.createElement('td');
+					var newInput = document.createElement('input');
+					if (i < numberOfPlayers) {
+						jQuery(newInput).on('keypress', function (event) {
+							if (event.keyCode == 13) {
+								var parentTr = jQuery(event.target).parent('td').parent('tr').next();
+								var targetInput = jQuery(parentTr).children('td:nth-child(2)').children('input').first();
+								jQuery(targetInput).focus();
+							}
+						});
+					} else {
+						jQuery(newInput).on('keypress', function (event) {
+							if (event.keyCode == 13) {
+								pt_setPlayerNames();
+							}
+						});
+					}
+					jQuery(newInput).attr('type', 'text');
+					playerNames.push(newInput);
+					playerPoints.push(0);
+					jQuery(newRow).append(newTd);
+					jQuery(newTd).append(newInput);
+					jQuery('#step2 table tbody').append(newRow);
+				}
+				jQuery('#step2').show();
+				jQuery(playerNames[0]).focus();
+			};
+
+			var pt_setPlayerNames = function (event) {
+				jQuery('#step2').hide();
+				var actualPlayerNames = [];
+				for (var i = 0; i < playerNames.length; ++i) {
+					var playerName = jQuery(playerNames[i]).val();
+					actualPlayerNames.push(playerName);
+					var newTh = document.createElement('th');
+					newTh.textContent = playerName;
+					jQuery('#step4 table#points_table thead #player_names').append(newTh);
+					newTh = document.createElement('th');
+					newTh.textContent = 0;
+					jQuery('#step4 table#points_table thead #total_points').append(newTh);
+				}
+				playerNames = actualPlayerNames;
+				pt_nextPointsInput();
+				jQuery('#step3').show();
+				jQuery('#points').focus();
+			};
+
+			var pt_nextPointsInput = function (event) {
+				currentPlayerIndex++;
+				if (currentPlayerIndex >= playerNames.length) {
+					roundNumber++;
+					currentPlayerIndex = 0;
+					var newRow = document.createElement('tr');
+                    var targetElement = jQuery('#step4 table#points_table tbody');
+                    jQuery(targetElement).append(newRow);
+					currentTableRow = newRow;
+					var newTd = document.createElement('td');
+					newTd.textContent = roundNumber;
+					jQuery(currentTableRow).append(newTd);
+				}
+                var playerName = playerNames[currentPlayerIndex] + "'";
+                if (playerName.substr(playerName.length - 2) != "s'") {
+                    playerName += 's';
+                }
+				jQuery('#step3 #round_info').text('Round ' + roundNumber + ": It's " + playerName + " turn!");
+			};
+
+			var pt_enterPlayerPoints = function (event) {
+				var points = jQuery('#points').val();
+				if (points != "") {
+					pt_addPlayerPoints(parseInt(points));
+				}
+				jQuery('#points').val('').focus();
+			};
+
+			var pt_enterPlayerNoPoints = function (event) {
+				pt_addPlayerPoints(0);
+			};
+
+			var pt_addPlayerPoints = function (points) {
+				var newTd = document.createElement('td');
+				newTd.textContent = points;
+                jQuery(newTd).attr('data-round', roundNumber);
+                jQuery(newTd).attr('data-player', currentPlayerIndex);
+                jQuery(newTd).attr('data-value', points);
+                jQuery(newTd).on('click', pt_editPoints);
+				jQuery(currentTableRow).append(newTd);
+				playerPoints[currentPlayerIndex] += points;
+				var totalPointThs = jQuery('#step4 table#points_table thead tr#total_points th');
+				totalPointThs[currentPlayerIndex + 1].textContent = playerPoints[currentPlayerIndex];
+				pt_highlightLeader();
+				if (!jQuery('#step4').is(':visible')) {
+                    jQuery('#step4').show();
+                    jQuery('#ranking').show();
+				}
+				pt_nextPointsInput();
+            };
+
+            var pt_editPoints = function (event) {
+                var newInput = document.createElement('input');
+                jQuery(newInput).attr('type', 'number');
+                jQuery(newInput).val(event.target.textContent);
+                jQuery(newInput).on('keypress', function (event) {
+                        var targetTd = jQuery(event.target).parent();
+                        var oldValue = jQuery(targetTd).attr('data-value');
+                        if (event.keyCode == 13) {
+                            var newValue = jQuery(event.target).val();
+                            jQuery(targetTd).empty().text(newValue).attr('data-value', newValue);
+                            var playerIndex = parseInt(jQuery(targetTd).attr('data-player'));
+                            playerPoints[playerIndex] += (newValue - oldValue);
+                            var totalPointsThs = jQuery('#step4 table#points_table thead tr#total_points th');
+                            totalPointsThs[playerIndex + 1].textContent = playerPoints[playerIndex];
+                            pt_highlightLeader();
+                            jQuery('#points').focus();
+                        }
+                });
+                jQuery(newInput).on('blur', function (event) {
+                    var oldValue = jQuery(event.target).parent('td').attr('data-value');
+                    jQuery(event.target).parent('td').empty().text(oldValue);
+                    jQuery('#points').focus();
+                });
+                jQuery(event.target).empty().append(newInput);
+                jQuery(newInput).focus().select();
+            };
+
+			var pt_highlightLeader = function () {
+				var highestPoints = 0;
+				var leadingPlayerIndexes = [];
+				var pointsMap = [];
+				for (var i = 0; i < playerPoints.length; ++i) {
+					pointsMap.push({name: playerNames[i], points: playerPoints[i]});
+					if (playerPoints[i] > highestPoints) {
+						leadingPlayerIndexes = [i];
+						highestPoints = playerPoints[i];
+					}
+					else if (playerPoints[i] == highestPoints) {
+						leadingPlayerIndexes.push(i);
+					}
+				}
+				var totalPointThs = jQuery('#step4 table#points_table thead tr#total_points th');
+				jQuery(totalPointThs).removeClass('leader');
+				for (var j = 0; j < leadingPlayerIndexes.length; ++j) {
+					jQuery(totalPointThs[leadingPlayerIndexes[j] + 1]).addClass('leader');
+				}
+				pointsMap.sort(function (a, b) {
+					return b.points - a.points;
+				});
+				jQuery('#ranking table#ranking_table tbody').empty();
+				var rank = 0;
+				var currentRankPoints = -1;
+				for (var i = 1; i <= pointsMap.length; ++i) {
+					if ((currentRankPoints > pointsMap[i - 1].points) || (currentRankPoints < 0)) {
+						rank++;
+						currentRankPoints = pointsMap[i - 1].points;
+					}
+					var newTr = document.createElement('tr');
+					var newTd = document.createElement('td');
+					newTd.textContent = rank + '.';
+					jQuery(newTr).append(newTd);
+					newTd = document.createElement('td');
+					newTd.textContent = pointsMap[i - 1].name;
+					jQuery(newTr).append(newTd);
+					newTd = document.createElement('td');
+					newTd.textContent = pointsMap[i - 1].points;
+					jQuery(newTr).append(newTd);
+					jQuery('#ranking table#ranking_table tbody').append(newTr);
+				}
+			};
+
+			jQuery(document).ready(function(){
+				pt_init();
+			});
+		</script>
+		<header>
+			<h1>Points Table</h1>
+		</header>
+		<section id="step1">
+			<h2>Settings</h2>
+			<label for="number_of_players">How many players will be playing?</label>
+			<select id="number_of_players" size="1">
+				<option value="1" selected="selected">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+			</select>
+			<button id="start_button">Continue to Player Name Input</button>
+		</section>
+		<section id="step2">
+			<h2>Enter Player Names</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Player</th>
+						<th>Name</th>
+					</th>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+			<button id="save_names">Start Recording Points</button>
+		</section>
+		<section id="step3">
+			<h2 id="round_info">Round X: It's xxx's turn!</h2>
+			<form action="#" id="points_form">
+				<label for="points">Points earned:</label>
+				<input type="number" id="points" value="" />
+				<button id="enter_points">Record Points</button>
+				<button id="no_points">No Points Earned</button>
+			</form>
+		</section>
+		<section id="step4">
+			<h2>Points Table</h2>
+			<table id="points_table">
+				<thead>
+					<tr id="player_names">
+						<th>Player</th>
+					</tr>
+					<tr id="total_points">
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+        </section>
+        <section id="ranking">
+			<h2>Ranking</h2>
+			<table id="ranking_table">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>Points</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</section>
+	</body>
+</html>
