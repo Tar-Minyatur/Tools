@@ -1,0 +1,59 @@
+body {
+    font-family: Verdana, Arial, sans-serif;
+    margin: 0;
+    padding: 3em 5em;
+}
+
+header {
+    border-bottom: 1px #c0c0c0 solid;
+    margin: 0 0 1em 0;
+    padding: 0;
+}
+
+table {
+    border: 1px #c0c0c0 solid;
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+table tr th {
+    background: #c0c0c0;
+    color: #fff;
+    padding: 0.3em;
+}
+
+table tr td {
+    border: 1px #c0c0c0 solid;
+    padding: 0.2em;
+    text-align: right;
+    white-space: nowrap;
+}
+
+table tr td.pt_sum {
+    font-weight: bold;
+    color: #68c;
+}
+
+table tr td.pt_highlighted {
+    background: #fec;
+}
+
+table tr td {
+    width: 2em;
+}
+
+table tr.pt_bar_row td {
+    height: 7em;
+    vertical-align: bottom;
+}
+
+table tr.pt_bar_row div {
+    position: relative;
+    bottom: 0;
+    background: #68c;
+}
+
+table#pt_ranking_table {
+    float: left;
+    margin-right: 1em;
+}
