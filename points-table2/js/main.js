@@ -223,14 +223,16 @@
         $(barRow).addClass('pt_bar_row');
         $(pointsTable).children('tbody').first().children('tr').each(function(rowIndex, tableRow){
             $(tableRow).children('td').each(function(cellIndex, tableCell){
+                var label = null;
                 if (($(tableCell).text() == '') || (cellIndex == 0)) {
                     return;
                 }
-                if (!histogram[$(tableCell).text()]) {
-                    histogram[$(tableCell).text()] = 0;
+                label = parseInt($(tableCell).text());
+                if (!histogram[label]) {
+                    histogram[label] = 0;
                 }
-                histogram[$(tableCell).text()]++;
-                maxValue = Math.max(maxValue, histogram[$(tableCell).text()]);
+                histogram[label]++;
+                maxValue = Math.max(maxValue, histogram[label]);
             });
         });
         histogram = objectAsSortedArray(histogram);
@@ -256,7 +258,9 @@
         for (k in obj) {
             keys.push(k);
         }
-        keys.sort();
+        keys.sort(function(a,b){
+            return a - b;
+        });
         for (k in keys) {
             result.push({'key': keys[k], 'value': obj[keys[k]]});
         }
