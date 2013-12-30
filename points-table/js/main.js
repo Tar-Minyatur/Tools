@@ -20,9 +20,9 @@ var pt_init = function () {
             pt_setPlayerCount();
         }
     });
-    jQuery(document).on('unload', function (event) {
+    window.onbeforeunload = function() {
         return "You will lose all data. Proceed anyway?";
-    });
+    };
 };
 
 var pt_setPlayerCount = function (event) {

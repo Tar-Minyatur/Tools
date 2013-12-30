@@ -100,6 +100,9 @@
         histogramTable = document.createElement('table');
         $(histogramTable).attr('id', 'pt_histogram_table').html('<thead><tr><th>Points Histogram</th></tr></thead><tbody><tr class="pt_bar_row"><td><div style="height: 100%"></div></td></tr><tr><td>0</td></tr></tbody>');
         $('div#pt_container').append(pointsTable).append(rankingTable).append(histogramTable);
+        window.onbeforeunload = function () {
+            return "You will lose all data. Proceed anyway?";
+        };
         startNextRound();
         updateRanking();
         updateHistogram();
